@@ -54,7 +54,7 @@ export class CodePipelineStack extends Stack {
       post: [
         new pipelines.CodeBuildStep('RunApproval', {
           commands: [
-            '$(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)',
+            `aws ecr get-login-password --region ${region} | docker login --username AWS --password-stdin ${account}.dkr.ecr.${region}.amazonaws.com`,
             `docker build -t ${ecrName} ./app`,
             `docker tag ${ecrName}:latest ${account}.dkr.ecr.${region}.amazonaws.com/${ecrName}:latest`,
             `docker push ${account}.dkr.ecr.${region}.amazonaws.com/${ecrName}:latest`,
