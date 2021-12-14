@@ -45,25 +45,9 @@ export class CodePipelineStack extends Stack {
           "npx cdk synth",
           "cd ../",
         ],
-        primaryOutputDirectory: 'cdk/cdk.out',
+        primaryOutputDirectory: "cdk/cdk.out",
       }),
       dockerEnabledForSelfMutation: true,
-    });
-
-    pipeline.addWave("MyWave", {
-      post: [
-        new pipelines.CodeBuildStep("RunApproval", {
-          commands: ["command-from-image"],
-          buildEnvironment: {
-            // The user of a Docker image asset in the pipeline requires turning on
-            // 'dockerEnabledForSelfMutation'.
-            // buildImage: codebuild.LinuxBuildImage.fromAsset(this, 'Image', {
-            //   directory: '../app',
-            // }),
-            buildImage: codebuild.LinuxBuildImage.fromEcrRepository(repository),
-          },
-        }),
-      ],
     });
   }
 }

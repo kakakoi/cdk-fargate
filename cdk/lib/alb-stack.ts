@@ -24,7 +24,8 @@ export class AlbStack extends Stack {
       memoryLimitMiB: 1024,
       cpu: 512,
       taskImageOptions: {
-        image: ecs.ContainerImage.fromEcrRepository(repository)
+        // image: ecs.ContainerImage.fromEcrRepository(repository)
+        image: ecs.ContainerImage.fromAsset('../app')
       },
     });
 
