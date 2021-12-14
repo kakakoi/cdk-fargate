@@ -1,4 +1,4 @@
-import { Stack, StackProps, pipelines } from "aws-cdk-lib";
+import { Stack, StackProps, pipelines, Stage } from "aws-cdk-lib";
 import * as codebuild from "aws-cdk-lib/aws-codebuild";
 import * as ecr from "aws-cdk-lib/aws-ecr";
 import * as iam from "aws-cdk-lib/aws-iam";
@@ -22,11 +22,10 @@ export class CodePipelineStack extends Stack {
       this,
       "/pipeline/con/github/CdkFargate"
     );
-    const repository = ecr.Repository.fromRepositoryName(
-      this,
-      "repo",
-      "my-repo-name"
-    );
+
+    const ecrName = 'my-repo-name'
+    const account = process.env.CDK_DEFAULT_ACCOUNT
+    const region = process.env.CDK_DEFAULT_REGION
 
     const pipeline = new pipelines.CodePipeline(this, "Pipeline", {
       synth: new pipelines.CodeBuildStep("build", {
@@ -39,11 +38,13 @@ export class CodePipelineStack extends Stack {
           }
         ),
         commands: [
+          `docker build -t ${ecrName} ./app`,
+          `docker tag ${ecrName}:latest ${account}.dkr.ecr.${region}.amazonaws.com/${ecrName}:latest`,
+          `docker push ${account}.dkr.ecr.${region}.amazonaws.com/${ecrName}:latest`,
           "cd cdk",
           "npm ci",
           "npm run build",
-          "npx cdk synth",
-          "cd ../",
+          "npx cdk synth --all",
         ],
         primaryOutputDirectory: "cdk/cdk.out",
       }),
