@@ -20,7 +20,7 @@ export class CodePipelineStack extends Stack {
           connectionArn: conArn,
            // Created using the AWS console * });',
         }),
-        commands: ['cd cdk','npm ci','npm run build','npx cdk synth', 'cd ../'],
+        commands: ['cd cdk','npm ci','npm run build','npx cdk synth --profile test-main', 'cd ../'],
       }),
       // Turn this on because the pipeline uses Docker image assets
       dockerEnabledForSelfMutation: true,

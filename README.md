@@ -3,6 +3,7 @@
 ## ECR. push image
 
 ```bash
+$ aws configure list-profiles
 $ cdk deploy EcrStack
 ```
 
