@@ -45,6 +45,7 @@ export class CodePipelineStack extends Stack {
           "npx cdk synth",
           "cd ../",
         ],
+        primaryOutputDirectory: 'cdk/cdk.out',
       }),
       dockerEnabledForSelfMutation: true,
     });
