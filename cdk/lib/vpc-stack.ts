@@ -22,5 +22,23 @@ export class VpcStack extends Stack {
         },
       ]
     })
+
+    vpc.addInterfaceEndpoint("ecr-endpoint", {
+      service: ec2.InterfaceVpcEndpointAwsService.ECR
+    })
+    vpc.addInterfaceEndpoint("ecr-dkr-endpoint", {
+      service: ec2.InterfaceVpcEndpointAwsService.ECR_DOCKER
+    })
+    vpc.addInterfaceEndpoint("logs-endpoint", {
+      service: ec2.InterfaceVpcEndpointAwsService.CLOUDWATCH_LOGS
+    })
+    vpc.addGatewayEndpoint("s3-endpoint", {
+      service: ec2.GatewayVpcEndpointAwsService.S3,
+      subnets: [
+        {
+          subnets: vpc.isolatedSubnets
+        }
+      ]
+    })
   }
 }
