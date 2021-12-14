@@ -27,6 +27,8 @@ export class CodePipelineStack extends Stack {
     const account = process.env.CDK_DEFAULT_ACCOUNT
     const region = process.env.CDK_DEFAULT_REGION
 
+    const repository = ecr.Repository.fromRepositoryName(this, 'repo', ecrName)
+
     const pipeline = new pipelines.CodePipeline(this, "Pipeline", {
       synth: new pipelines.CodeBuildStep("build", {
         role: buildRole,
@@ -38,9 +40,6 @@ export class CodePipelineStack extends Stack {
           }
         ),
         commands: [
-          `docker build -t ${ecrName} ./app`,
-          `docker tag ${ecrName}:latest ${account}.dkr.ecr.${region}.amazonaws.com/${ecrName}:latest`,
-          `docker push ${account}.dkr.ecr.${region}.amazonaws.com/${ecrName}:latest`,
           "cd cdk",
           "npm ci",
           "npm run build",
@@ -49,6 +48,23 @@ export class CodePipelineStack extends Stack {
         primaryOutputDirectory: "cdk/cdk.out",
       }),
       dockerEnabledForSelfMutation: true,
+    });
+
+    pipeline.addWave('MyWave', {
+      post: [
+        new pipelines.CodeBuildStep('RunApproval', {
+          commands: [
+            '$(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)',
+            `docker build -t ${ecrName} ./app`,
+            `docker tag ${ecrName}:latest ${account}.dkr.ecr.${region}.amazonaws.com/${ecrName}:latest`,
+            `docker push ${account}.dkr.ecr.${region}.amazonaws.com/${ecrName}:latest`,
+          ],
+          buildEnvironment: {
+            privileged: true,
+            buildImage: codebuild.LinuxBuildImage.fromEcrRepository(repository)
+          },
+        }),
+      ],
     });
   }
 }
